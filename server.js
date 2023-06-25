@@ -1,30 +1,22 @@
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config(`${__dirname}/.env`);
-}
-
 const express = require("express");
+const dotenv = require("dotenv");
+dotenv.config();
+
+const { notFound, errorHandler } = require("./middleware/errorMiddleware.js");
+const connectDB = require("./config/db");
+const port = process.env.PORT || 3003;
+
+const userRouter = require("./routes/userRouter");
+
+connectDB();
 const app = express();
 
-const expressLayouts = require("express-ejs-layouts");
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const indexRouter = require("./routes/index");
+app.use("/api/users", userRouter);
 
-app.set("view engine", "ejs");
-app.set("views", __dirname + "/views");
-app.set("layout", "layouts/layout");
-app.use(expressLayouts);
-app.use(express.static("public"));
+app.use(notFound);
+app.use(errorHandler);
 
-// app.use(dotenv.parse());
-const mongoose = require("mongoose");
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-});
-
-const db = mongoose.connection;
-db.on("error", (error) => console.error(error));
-db.once("open", () => console.log("Connected to Mongoose"));
-
-app.use("/", indexRouter);
-
-app.listen(process.env.PORT || 3003);
+app.listen(port, () => console.log(`Server started on port ${port}`));
