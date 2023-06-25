@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
 
+const cookiParser = require("cookie-parser");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware.js");
 const connectDB = require("./config/db");
 const port = process.env.PORT || 3003;
@@ -13,6 +14,8 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(cookiParser());
 
 app.use("/api/users", userRouter);
 
