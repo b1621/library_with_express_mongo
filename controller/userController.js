@@ -49,9 +49,11 @@ exports.registerUser = asyncHandler(async (req, res) => {
 });
 
 exports.getAllUser = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    message: "get all user",
-  });
+  //write a code  a mongoose function to get all users
+
+  const users = await User.find({});
+
+  res.status(200).json(users);
 });
 
 exports.logoutUser = asyncHandler(async (req, res) => {
@@ -70,14 +72,29 @@ exports.getUserProfile = asyncHandler(async (req, res) => {
     name: req.user.name,
     email: req.user.email,
   };
-  console.log(user);
-  res.status(200).json({
-    user,
-  });
+  // console.log(user);
+  res.status(200).json(user);
 });
 
 exports.updateUserProfile = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    message: "Update User profile",
-  });
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
 });
